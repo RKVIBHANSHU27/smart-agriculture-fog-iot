@@ -3,9 +3,9 @@ import random
 from sensors.base_sensor import BaseSensor
 
 
-class TemperatureSensor(BaseSensor):
+class LightSensor(BaseSensor):
     """
-    Simulates an agriculture temperature sensor.
+    Simulates a light intensity sensor.
     """
 
     def __init__(
@@ -16,14 +16,11 @@ class TemperatureSensor(BaseSensor):
     ):
         super().__init__(
             sensor_id=sensor_id,
-            sensor_type="temperature",
-            unit="°C",
+            sensor_type="light",
+            unit="lux",
             generation_interval=generation_interval,
             dispatch_interval=dispatch_interval
         )
 
     def generate_value(self):
-        """
-        Generate a realistic agriculture temperature.
-        """
-        return random.uniform(18.0, 35.0)
+        return random.uniform(1000.0, 100000.0)
