@@ -27,7 +27,7 @@ class Device:
 
             payload = sensor.generate_payload()
 
-            payload["device_id"] = f"DEVICE{self.device_id:03}"
+            payload["device_id"] = f"DEVICE{self.device_id:02}"
 
             readings.append(payload)
 

@@ -46,11 +46,15 @@ class FogNode:
             reading["sensor_type"],
             statistics["average"]
         )
+        
+        if alert is None:
+            alert = "NORMAL"
 
         # Step 6: Create processed record
         processed_data = {
             "device_id": reading["device_id"],
             "sensor_type": reading["sensor_type"],
+            "unit": reading["unit"], 
             "reading_count": statistics["reading_count"],
             "minimum": statistics["minimum"],
             "maximum": statistics["maximum"],
