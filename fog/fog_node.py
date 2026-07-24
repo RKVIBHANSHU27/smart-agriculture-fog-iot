@@ -4,6 +4,7 @@ from config.config import READINGS_PER_BATCH
 from fog.validator import DataValidator
 from fog.aggregator import DataAggregator
 from fog.alert_manager import AlertManager
+from aws.sqs.dispatcher import SQSDispatcher
 
 
 class FogNode:
@@ -12,6 +13,9 @@ class FogNode:
 
         # Buffer readings by (device_id, sensor_type)
         self.buffer = defaultdict(list)
+
+         # SQS dispatcher
+        self.dispatcher = SQSDispatcher()
 
     def receive_reading(self, reading):
 
@@ -59,5 +63,7 @@ class FogNode:
         print(processed_data)
         print("===================================\n")
 
-        # Step 7: Clear buffer
+        self.dispatcher.send(processed_data)    
+
+        
         self.buffer[key].clear()

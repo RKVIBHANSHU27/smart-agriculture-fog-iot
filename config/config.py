@@ -19,7 +19,8 @@ GENERATION_INTERVAL = 2        # Seconds
 READINGS_PER_BATCH = 5         # Fog processes after 5 readings
 
 # AWS
-AWS_REGION = "eu-west-1"
+AWS_REGION = "us-east-1"
+SQS_QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/035432721660/SmartAgricultureTelemetryQueue"
 
 # Dashboard
 MAX_HISTORY = 5
