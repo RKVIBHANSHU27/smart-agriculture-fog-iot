@@ -1,26 +1,69 @@
 class AlertManager:
-   
+
 
     THRESHOLDS = {
-        "temperature": {"high": 30},
-        "humidity": {"low": 35},
-        "soil_moisture": {"low": 30},
-        "light": {"low": 5000},
-        "co2": {"high": 1500},
+
+        "temperature": {
+            "warning": 30,
+            "critical": 35
+        },
+
+        "humidity": {
+            "warning_low": 35,
+            "critical_low": 25
+        },
+
+        "soil_moisture": {
+            "warning_low": 30,
+            "critical_low": 20
+        },
+
+        "light": {
+            "warning_low": 5000,
+            "critical_low": 2000
+        },
+
+        "co2": {
+            "warning": 1000,
+            "critical": 1500
+        },
     }
+
 
     @classmethod
     def check_alert(cls, sensor_type, average_value):
 
         if sensor_type not in cls.THRESHOLDS:
-            return None
+            return "NORMAL"
+
 
         limits = cls.THRESHOLDS[sensor_type]
 
-        if "high" in limits and average_value > limits["high"]:
-            return f"HIGH_{sensor_type.upper()}"
 
-        if "low" in limits and average_value < limits["low"]:
-            return f"LOW_{sensor_type.upper()}"
+        # HIGH values
 
-        return None
+        if "critical" in limits:
+            if average_value >= limits["critical"]:
+                return "CRITICAL"
+
+
+        if "warning" in limits:
+            if average_value >= limits["warning"]:
+                return "WARNING"
+
+
+
+        # LOW values
+
+        if "critical_low" in limits:
+            if average_value <= limits["critical_low"]:
+                return "CRITICAL"
+
+
+        if "warning_low" in limits:
+            if average_value <= limits["warning_low"]:
+                return "WARNING"
+
+
+
+        return "NORMAL"

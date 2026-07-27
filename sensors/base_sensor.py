@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 import uuid
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class BaseSensor(ABC):
@@ -53,4 +55,5 @@ class BaseSensor(ABC):
             "sensor_generated_at": datetime.now(
                 timezone.utc
             ).isoformat()
+    
         }

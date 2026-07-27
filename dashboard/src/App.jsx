@@ -1,122 +1,198 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {
+  useEffect,
+  useState
+} from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+import {
+  getDashboardData,
+  getTelemetry
+} from "./services/api";
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+import TelemetryChart from "./components/TelemetryChart";
+import TelemetryTable from "./components/TelemetryTable";
+import FogNode from "./components/FogNode";
+import DeviceHealth from "./components/DeviceHealth";
+import AlertPanel from "./components/AlertPanel";
+import {getAlerts} from "./services/api";
 
-      <div className="ticks"></div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function App(){
+function formatDate(timestamp){
+  
+  const [alerts,setAlerts] = useState([]);
+
+  if(!timestamp)
+    return "";
+
+  const date = new Date(timestamp);
+
+  return date.toLocaleString(
+    "en-IE",
+    {
+      day:"2-digit",
+      month:"long",
+      year:"numeric",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+
 }
 
-export default App
+
+  const [dashboard, setDashboard] = useState(null);
+  const [telemetry, setTelemetry] = useState([]);
+  const [alerts,setAlerts] = useState([]);
+
+useEffect(()=>{
+
+    getDashboardData()
+      .then(data => {
+        setDashboard(data);
+      });
+
+
+    getTelemetry()
+      .then(data => {
+        setTelemetry(data);
+      });
+
+
+}, []);
+
+
+
+  if(!dashboard)
+    return <h1>Loading...</h1>
+
+
+
+  return(
+
+    <div className="dashboard">
+
+      <h1 className="title">
+      🌱 Smart Agriculture Monitoring System
+      <span className="live">
+        ● LIVE
+      </span>
+      </h1>
+
+
+      <div className="cards">
+
+
+        <div className="card">
+          <h3>Devices</h3>
+          <div className="value">
+            {dashboard.total_devices}
+          </div>
+        </div>
+
+
+        <div className="card">
+          <h3>Sensor Types</h3>
+          <div className="value">
+            {dashboard.total_sensor_types}
+          </div>
+        </div>
+
+
+        <div className="card">
+          <h3>Latest Readings</h3>
+          <div className="value">
+            {dashboard.total_latest_readings}
+          </div>
+        </div>
+
+
+        <div className="card">
+          <h3>Status</h3>
+          <div className="status">
+            🟢 ONLINE
+          </div>
+        </div>
+
+
+      </div>
+
+
+
+      <h2>Alert Monitoring</h2>
+
+
+      <div className="alerts">
+
+
+        <div className="alert green">
+          <h3>Normal</h3>
+          <h1>{dashboard.alerts.NORMAL}</h1>
+        </div>
+
+
+        <div className="alert yellow">
+          <h3>Warning</h3>
+          <h1>{dashboard.alerts.WARNING}</h1>
+        </div>
+
+
+        <div className="alert red">
+          <h3>Critical</h3>
+          <h1>{dashboard.alerts.CRITICAL}</h1>
+        </div>
+
+
+      </div>
+
+
+      <FogNode />
+      
+      <DeviceHealth />
+      
+      <h1>
+        Sensor Analytics
+      </h1>
+
+
+      <TelemetryChart
+        data={telemetry}
+        sensor="temperature"
+      />
+
+
+      <TelemetryChart
+        data={telemetry}
+        sensor="humidity"
+      />
+
+
+      <TelemetryChart
+        data={telemetry}
+        sensor="soil_moisture"
+      />
+
+
+      <TelemetryTable
+        data={telemetry}
+      />
+
+
+
+      <h2>
+        Last Telemetry Update
+      </h2>
+
+      <p>
+        {formatDate(dashboard.last_update)}
+      </p>
+
+
+    </div>
+
+  )
+
+}
+
+
+export default App;
