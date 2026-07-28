@@ -10,6 +10,7 @@ app = FastAPI(
 
 app.include_router(router)
 
+
 app.mount(
     "/assets",
     StaticFiles(directory="backend/dist/assets"),

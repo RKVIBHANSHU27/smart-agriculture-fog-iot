@@ -40,8 +40,6 @@ class AlertManager:
         limits = cls.THRESHOLDS[sensor_type]
 
 
-        # HIGH values
-
         if "critical" in limits:
             if average_value >= limits["critical"]:
                 return "CRITICAL"
@@ -52,9 +50,6 @@ class AlertManager:
                 return "WARNING"
 
 
-
-        # LOW values
-
         if "critical_low" in limits:
             if average_value <= limits["critical_low"]:
                 return "CRITICAL"
@@ -63,7 +58,6 @@ class AlertManager:
         if "warning_low" in limits:
             if average_value <= limits["warning_low"]:
                 return "WARNING"
-
 
 
         return "NORMAL"

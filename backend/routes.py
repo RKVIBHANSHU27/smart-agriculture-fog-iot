@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
+from fastapi import APIRouter
 from backend.database import table
 from config.config import MAX_HISTORY
 
@@ -8,11 +6,37 @@ from config.config import MAX_HISTORY
 router = APIRouter()
 
 
+def get_all_items():
+
+    items = []
+
+    response = table.scan()
+
+    items.extend(
+        response.get("Items", [])
+    )
+
+
+    while "LastEvaluatedKey" in response:
+
+        response = table.scan(
+            ExclusiveStartKey=response["LastEvaluatedKey"]
+        )
+
+        items.extend(
+            response.get("Items", [])
+        )
+
+
+    return items
+
+
+
 @router.get("/telemetry")
 def get_telemetry():
 
-    response = table.scan()
-    items = response.get("Items", [])
+    items = get_all_items()
+
 
     items = sorted(
         items,
@@ -20,13 +44,16 @@ def get_telemetry():
         reverse=True
     )
 
+
     return items[:MAX_HISTORY]
+
+
 
 @router.get("/latest")
 def latest():
 
-    response = table.scan()
-    items = response.get("Items", [])
+    items = get_all_items()
+
 
     items = sorted(
         items,
@@ -34,14 +61,16 @@ def latest():
         reverse=True
     )
 
+
     return items[:25]
+
 
 
 @router.get("/dashboard")
 def get_dashboard():
 
-    response = table.scan()
-    items = response.get("Items", [])
+    items = get_all_items()
+
 
     items = sorted(
         items,
@@ -49,7 +78,9 @@ def get_dashboard():
         reverse=True
     )
 
+
     latest = {}
+
 
     for item in items:
 
@@ -58,11 +89,25 @@ def get_dashboard():
             item["sensor_type"]
         )
 
+
         if key not in latest:
             latest[key] = item
 
 
+
     latest_items = list(latest.values())
+
+
+    all_devices = set(
+        item["device_id"]
+        for item in items
+    )
+
+
+    all_sensors = set(
+        item["sensor_type"]
+        for item in items
+    )
 
 
     normal = 0
@@ -74,58 +119,66 @@ def get_dashboard():
 
         alert = item["alert"]
 
+
         if alert == "NORMAL":
             normal += 1
 
-        elif alert in ["WARNING", "HIGH_CO2"]:
+
+        elif alert in [
+            "WARNING",
+            "HIGH_CO2",
+            "HIGH_TEMPERATURE",
+            "LOW_HUMIDITY",
+            "LOW_SOIL_MOISTURE"
+        ]:
             warning += 1
 
-        elif alert in ["CRITICAL", "EMERGENCY"]:
+
+        elif alert in [
+            "CRITICAL",
+            "EMERGENCY"
+        ]:
             critical += 1
+
 
 
     return {
 
-        "total_devices": len(
-            set(
-                item["device_id"]
-                for item in latest_items
-            )
-        ),
+        "total_devices": len(all_devices),
 
 
-        "total_sensor_types": len(
-            set(
-                item["sensor_type"]
-                for item in latest_items
-            )
-        ),
+        "total_sensor_types": len(all_sensors),
 
 
         "total_latest_readings": len(latest_items),
 
 
         "alerts": {
+
             "NORMAL": normal,
+
             "WARNING": warning,
+
             "CRITICAL": critical
+
         },
 
 
-        "last_update": (
+        "last_update":
             latest_items[0]["processed_at"]
             if latest_items
             else None
-        )
+
     }
+
+
 
 
 
 @router.get("/alerts")
 def get_alerts():
 
-    response = table.scan()
-    items = response.get("Items", [])
+    items = get_all_items()
 
 
     items = sorted(
@@ -135,36 +188,27 @@ def get_alerts():
     )
 
 
-    latest = {}
-
-
-    for item in items:
-
-        key = (
-            item["device_id"],
-            item["sensor_type"]
-        )
-
-        if key not in latest:
-            latest[key] = item
-
-
     alerts = [
+
         item
-        for item in latest.values()
-        if item.get("alert") != "NORMAL"
+
+        for item in items
+
+        if item["alert"] != "NORMAL"
+
     ]
 
 
-    return alerts
+    return alerts[:50]
+
+
 
 
 
 @router.get("/devices")
 def get_devices():
 
-    response = table.scan()
-    items = response.get("Items", [])
+    items = get_all_items()
 
 
     items = sorted(
@@ -184,8 +228,11 @@ def get_devices():
             item["sensor_type"]
         )
 
+
         if key not in latest:
+
             latest[key] = item
+
 
 
     devices = {}
@@ -195,11 +242,14 @@ def get_devices():
 
         device = item["device_id"]
 
+
         if device not in devices:
+
             devices[device] = []
 
 
         devices[device].append(item)
+
 
 
     return devices

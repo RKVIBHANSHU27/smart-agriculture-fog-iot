@@ -1,20 +1,37 @@
+# Python virtual environment
 venv/
-
+.env
 __pycache__/
 *.pyc
 
-.env
+# AWS credentials
+.aws/
+*.pem
 
-.vscode/
-
-.idea/
-
-node_modules/
-
-dist/
-
-build/
-
+# Logs
 *.log
 
+# React dependencies
+dashboard/node_modules/
+
+# React build files
+dashboard/dist/
+dashboard/build/
+
+# Environment variables
+.env
+*.env
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Python cache
+.pytest_cache/
+
+dist/
+build/

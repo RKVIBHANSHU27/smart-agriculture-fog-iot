@@ -6,13 +6,14 @@ return(
 <div className="card">
 
 <h2>
-Latest Telemetry
+Latest Fog Processed Telemetry (25)
 </h2>
 
 
 <table>
 
 <thead>
+
 <tr>
 <th>Device</th>
 <th>Sensor</th>
@@ -21,7 +22,9 @@ Latest Telemetry
 <th>Maximum</th>
 <th>Status</th>
 </tr>
+
 </thead>
+
 
 
 <tbody>
@@ -31,25 +34,81 @@ data.map((item,index)=>(
 
 <tr key={index}>
 
-<td>{item.device_id}</td>
-
-<td>{item.sensor_type}</td>
 
 <td>
-{item.average}
-{item.unit}
+{item.device_id}
 </td>
+
+
+<td>
+
+{
+item.sensor_type === "soil_moisture"
+?
+"Soil Moisture"
+:
+item.sensor_type === "co2"
+?
+"CO₂"
+:
+item.sensor_type
+}
+
+</td>
+
+
+
+<td>
+{item.average} {item.unit}
+</td>
+
+
 
 <td>
 {item.minimum}
 </td>
 
+
+
 <td>
 {item.maximum}
 </td>
 
+
+
 <td>
-🟢 {item.alert}
+
+<span
+
+className={
+ item.alert === "NORMAL"
+ ?
+ "status-normal"
+ :
+ item.alert === "WARNING"
+ ?
+ "status-warning"
+ :
+ "status-critical"
+}
+
+>
+
+{
+ item.alert === "NORMAL"
+ ?
+ "🟢 NORMAL"
+ :
+ item.alert === "WARNING"
+ ?
+ "🟡 WARNING"
+ :
+ "🔴 CRITICAL"
+}
+
+</span>
+
+
 </td>
 
 
@@ -61,6 +120,7 @@ data.map((item,index)=>(
 
 
 </tbody>
+
 
 </table>
 

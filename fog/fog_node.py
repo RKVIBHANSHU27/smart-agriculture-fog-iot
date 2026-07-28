@@ -52,6 +52,7 @@ class FogNode:
 
         # Step 6: Create processed record
         processed_data = {
+            "alert_id": reading["message_id"],
             "device_id": reading["device_id"],
             "sensor_type": reading["sensor_type"],
             "unit": reading["unit"], 

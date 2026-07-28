@@ -14,28 +14,30 @@ function TelemetryChart({data, sensor}){
 
 const chartData = data
 .filter(
- item => item.sensor_type === sensor
+    item => item.sensor_type === sensor
 )
-.reduce((acc,item)=>{
+.map(item => ({
 
-const existing = acc.find(
- x => x.device === item.device_id
-);
+    time: new Date(
+        item.processed_at
+    ).toLocaleTimeString(
+        "en-IE",
+        {
+            hour:"2-digit",
+            minute:"2-digit",
+            second:"2-digit"
+        }
+    ),
 
+    value:Number(
+        item.average
+    ),
 
-if(!existing){
+    device:item.device_id,
 
-acc.push({
- device:item.device_id,
- value:Number(item.average.toFixed(2))
-});
+    unit:item.unit
 
-}
-
-
-return acc;
-
-},[]);
+}));
 
 
 
@@ -43,29 +45,75 @@ return (
 
 <div className="card chart-card">
 
+
 <h2>
-{sensor.replace("_"," ").toUpperCase()}
+
+{
+sensor === "temperature"
+?
+"Temperature (°C)"
+:
+sensor === "humidity"
+?
+"Humidity (%)"
+:
+sensor === "soil_moisture"
+?
+"Soil Moisture (%)"
+:
+sensor === "co2"
+?
+"CO₂ (ppm)"
+:
+"Light (lux)"
+}
+
 </h2>
 
 
+
 <ResponsiveContainer
-width="100%"
-height={300}
+ width="100%"
+ height={220}
 >
+
 
 <LineChart data={chartData}>
 
+
 <CartesianGrid />
 
+
 <XAxis
-dataKey="device"
+dataKey="time"
 />
 
 
 <YAxis />
 
 
-<Tooltip />
+<Tooltip
+formatter={
+(value)=>
+[
+ value,
+ sensor === "temperature"
+ ? "°C"
+ :
+ sensor === "humidity"
+ ? "%"
+ :
+ sensor === "soil_moisture"
+ ? "%"
+ :
+ sensor === "co2"
+ ? "ppm"
+ :
+ "lux"
+]
+}
+/>
+
 
 
 <Line
@@ -84,7 +132,6 @@ strokeWidth={3}
 </div>
 
 );
-
 
 }
 
